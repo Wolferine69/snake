@@ -2,7 +2,7 @@ from turtle import Turtle, Screen
 import time, random
 
 screen = Screen()
-screen.bgcolor("green")
+screen.bgcolor("lightblue")
 screen.title("Vitejte v hadi hre")
 screen.setup(width=600,height=600)
 screen.tracer(False)
@@ -17,6 +17,12 @@ food = Turtle("circle")
 food.color("black")
 food.penup()
 food.goto(random.randint(-280,280),random.randint(-280,280))
+score_sign=Turtle("square")
+score_sign.color("navy")
+score_sign.penup()
+score_sign.hideturtle()
+score_sign.goto(0,280)
+
 
 def move():
     y=head.ycor()
@@ -51,23 +57,26 @@ def reset():
     for bodypart in body:
         bodypart.goto(1500,1500)
     body.clear()
+    return(0)
 
 screen.onkey(move_up,"w")
 screen.onkey(move_down,"s")
 screen.onkey(move_left,"a")
 screen.onkey(move_right,"d")
 
-def main_loop():
+def main_loop(score,hi_score):
+    score_sign.clear()
+    score_sign.write(f"Skóre: {score}    Nejvyšší skóre: {hi_score}",align = "center")
     screen.update()
     
 # kontrola kolize se stenou
     if head.xcor()>290 or head.xcor()<-290 or head.ycor()>290 or head.ycor()<-290:
-        reset()
+        score = reset()
 
 # kolize s telem
     for body_part in body:
         if head.distance(body_part) < 20:
-            reset()
+            score = reset()
 
 # sezrani jidla
     if head.distance(food) <20:
@@ -75,9 +84,11 @@ def main_loop():
         # pridani tela
         body_part=Turtle("square")
         body_part.speed(0)
-        body_part.color("blue")
+        body_part.color("green")
         body_part.penup()
         body.append(body_part)
+        score+=1
+        hi_score=score if score>hi_score else hi_score
 
 # vykresleni tela
     for i in range(len(body)-1,0,-1):
@@ -91,8 +102,7 @@ def main_loop():
         body[0].goto(x,y)
     
     move()        
-    time.sleep(0.1)
-    screen.ontimer(main_loop, 5)
+    screen.ontimer(lambda: main_loop(score, hi_score), 100)
 
-main_loop()
+main_loop(0,0)
 screen.exitonclick()
